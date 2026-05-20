@@ -1018,7 +1018,9 @@ function diasRestantes() {
 function txDoCiclo() {
   const { inicio, fim } = getCicloAtual();
   return state.transacoes.filter(t => {
-    const d = new Date(t.data);
+    // Parseia a data como local (não UTC) para evitar bug de fuso horário
+    const [ano, mes, dia] = t.data.split('-').map(Number);
+    const d = new Date(ano, mes - 1, dia);
     return d >= inicio && d <= fim;
   });
 }
