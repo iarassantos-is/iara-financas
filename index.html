@@ -531,6 +531,128 @@ h3 { font-size: 1.1rem; }
 }
 .filter-chip.active { background: var(--purple); color: white; border-color: var(--purple); }
 
+.filter-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin: 0.25rem 0.25rem -0.1rem;
+}
+
+.tx-summary {
+  display: flex;
+  justify-content: space-between;
+  background: var(--bg-elev);
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  font-size: 0.8rem;
+}
+.tx-summary .summary-label { color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.65rem; font-weight: 600; }
+.tx-summary .summary-value { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--text); font-size: 1rem; }
+
+/* ALERTAS no Dashboard */
+.alert-card {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
+  border: 1px solid var(--yellow);
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--text);
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+}
+.alert-card.danger {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+  border-color: var(--red);
+}
+.alert-card.success {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+  border-color: var(--green);
+}
+.alert-card .alert-icon { font-size: 1.2rem; flex-shrink: 0; }
+.alert-card strong { color: var(--purple); }
+.alert-card.danger strong { color: var(--red); }
+.alert-card.success strong { color: var(--green); }
+
+/* TOP 5 */
+.top5-item {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  gap: 0.75rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+.top5-item:last-child { border-bottom: none; }
+.top5-rank {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.4rem;
+  color: var(--purple);
+  font-style: italic;
+  text-align: center;
+}
+.top5-info .top5-desc { font-weight: 600; font-size: 0.92rem; }
+.top5-info .top5-meta { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+.top5-value { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.95rem; }
+
+/* COMPARATIVO - gráfico SVG */
+.comp-chart-svg { width: 100%; height: auto; display: block; }
+.comp-bar { transition: opacity 0.2s; cursor: pointer; }
+.comp-bar:hover { opacity: 0.85; }
+.comp-bar-current { filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.5)); }
+
+.comp-table-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.6rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  font-size: 0.85rem;
+}
+.comp-table-row:last-child { border-bottom: none; }
+.comp-table-row.is-current { background: rgba(168, 85, 247, 0.05); margin: 0 -0.5rem; padding-left: 0.5rem; padding-right: 0.5rem; border-radius: 8px; }
+.comp-table-row .ciclo-name { font-weight: 600; }
+.comp-table-row .ciclo-name small { display:block; font-weight: 400; color: var(--text-muted); font-size: 0.7rem; }
+.comp-table-row .ciclo-value { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+.comp-table-row .ciclo-diff { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; padding: 2px 8px; border-radius: 100px; }
+.comp-table-row .ciclo-diff.up { background: var(--red-dim); color: var(--red); }
+.comp-table-row .ciclo-diff.down { background: var(--green-dim); color: var(--green); }
+.comp-table-row .ciclo-diff.eq { background: var(--bg-elev); color: var(--text-muted); }
+
+/* PRESETS de lançamento */
+.preset-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.preset-btn {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.55rem 0.4rem;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  transition: transform 0.1s, border-color 0.15s;
+}
+.preset-btn:active { transform: scale(0.95); }
+.preset-btn .preset-emoji { font-size: 1.1rem; }
+.preset-btn .preset-val { color: var(--purple); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; }
+.preset-btn.add { border-style: dashed; color: var(--text-muted); }
+
 .toast {
   position: fixed;
   top: max(env(safe-area-inset-top), 1rem);
@@ -625,21 +747,82 @@ h3 { font-size: 1.1rem; }
     Ciclo: <strong>11 de cada mês → 10 do seguinte</strong>
   </div>
 
+  <!-- ALERTAS automáticos -->
+  <div id="alerts-list"></div>
+
   <div class="section-title">Categorias do mês</div>
   <div id="cats-list"></div>
+
+  <div class="section-title">🔥 Top 5 maiores gastos do ciclo</div>
+  <div class="card" id="top5-list"></div>
 </div>
 
 <!-- ==== PAGE: TRANSAÇÕES ==== -->
 <div class="page" id="page-tx">
-  <h1 style="margin: 0.5rem 0 1rem;">Movimentações</h1>
+  <div style="display:flex; align-items:center; justify-content:space-between; margin: 0.5rem 0 0.75rem;">
+    <h1 style="margin:0;">Movimentações</h1>
+    <button class="icon-btn" style="background:var(--bg-card); border:1px solid var(--border); width:38px; height:38px; border-radius:11px; color:var(--text-dim); cursor:pointer; display:flex; align-items:center; justify-content:center;" onclick="exportTxCsv()" title="Exportar CSV">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+    </button>
+  </div>
 
+  <div class="filter-label">Período</div>
+  <div class="filter-row" id="filter-row-ciclo">
+    <!-- chips de ciclo preenchidos via JS -->
+  </div>
+
+  <div class="filter-label">Categoria</div>
   <div class="filter-row" id="filter-row">
     <button class="filter-chip active" data-filter="all">Todas</button>
     <!-- categorias serão preenchidas dinamicamente -->
   </div>
 
+  <div class="tx-summary" id="tx-summary"></div>
+
   <div class="card" id="tx-list-card">
     <div id="tx-list"></div>
+  </div>
+</div>
+
+<!-- ==== PAGE: COMPARATIVO ==== -->
+<div class="page" id="page-comp">
+  <h1 style="margin: 0.5rem 0 0.5rem;">Comparativo</h1>
+  <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+    Evolução dos seus gastos nos últimos 6 ciclos.
+  </p>
+
+  <div class="filter-label">Visualizar</div>
+  <div class="filter-row" id="comp-mode-row">
+    <button class="filter-chip active" data-comp-mode="total">Fatura total</button>
+    <button class="filter-chip" data-comp-mode="cat">Por categoria</button>
+  </div>
+
+  <div id="comp-cat-row" style="display:none;">
+    <div class="filter-label">Categoria</div>
+    <div class="filter-row" id="comp-cat-chips"></div>
+  </div>
+
+  <!-- Card resumo (média, máximo, mínimo) -->
+  <div class="chip-row" style="margin-top: 0.5rem;">
+    <div class="chip">
+      <div class="chip-label">Média (6 ciclos)</div>
+      <div class="chip-value mono" id="comp-media">R$ 0</div>
+    </div>
+    <div class="chip">
+      <div class="chip-label">Variação último</div>
+      <div class="chip-value mono" id="comp-variacao">—</div>
+    </div>
+  </div>
+
+  <!-- Gráfico de barras (SVG inline) -->
+  <div class="card">
+    <div id="comp-chart" style="position:relative;"></div>
+  </div>
+
+  <!-- Tabela detalhada -->
+  <div class="section-title">Detalhamento</div>
+  <div class="card">
+    <div id="comp-table"></div>
   </div>
 </div>
 
@@ -682,6 +865,15 @@ h3 { font-size: 1.1rem; }
 
   <div class="section-title">Meta de fatura</div>
   <div class="card" id="config-meta-fatura"></div>
+
+  <div class="section-title">⚡ Lançamentos rápidos (presets)</div>
+  <div class="card">
+    <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.75rem; line-height: 1.5;">
+      Atalhos para os gastos mais comuns. Aparecem como botões no topo do modal de novo lançamento.
+    </div>
+    <div class="card" id="config-presets" style="background: transparent; border: none; padding: 0;"></div>
+    <button class="btn btn-ghost" style="margin-top: 0.6rem;" onclick="openAddPreset()">+ Adicionar preset</button>
+  </div>
 
   <div class="section-title">Dados & Backup</div>
   <div class="card">
@@ -726,7 +918,11 @@ h3 { font-size: 1.1rem; }
   </button>
   <button data-page="tx" onclick="navTo('tx')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18M3 12h18M3 18h12"/></svg>
-    Lançamentos
+    Lançam.
+  </button>
+  <button data-page="comp" onclick="navTo('comp')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="7"/><rect x="12" y="7" width="3" height="11"/><rect x="17" y="14" width="3" height="4"/></svg>
+    Comparar
   </button>
   <button data-page="cats" onclick="navTo('cats')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
@@ -743,6 +939,10 @@ h3 { font-size: 1.1rem; }
   <div class="modal">
     <div class="modal-handle"></div>
     <h2>Novo lançamento</h2>
+
+    <div class="filter-label">Lançamento rápido</div>
+    <div class="preset-row" id="preset-row"></div>
+
     <div class="form-row">
       <label>Valor (R$)</label>
       <input type="number" id="tx-valor" inputmode="decimal" step="0.01" placeholder="0,00">
@@ -849,6 +1049,36 @@ h3 { font-size: 1.1rem; }
   </div>
 </div>
 
+<!-- ==== MODAL: Preset (lançamento rápido) ==== -->
+<div class="modal-overlay" id="modal-preset">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 id="preset-modal-title">Preset</h2>
+    <input type="hidden" id="preset-idx">
+    <div class="form-row">
+      <label>Emoji</label>
+      <input type="text" id="preset-emoji" placeholder="🍔" maxlength="4">
+    </div>
+    <div class="form-row">
+      <label>Rótulo (curto)</label>
+      <input type="text" id="preset-label" placeholder="Ex.: Uber">
+    </div>
+    <div class="form-row">
+      <label>Valor padrão (R$)</label>
+      <input type="number" id="preset-valor" inputmode="decimal" step="0.01" placeholder="20,00">
+    </div>
+    <div class="form-row">
+      <label>Categoria</label>
+      <select id="preset-cat"></select>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-danger" id="preset-del-btn" onclick="deletePreset()">Excluir</button>
+      <button class="btn" onclick="savePreset()">Salvar</button>
+    </div>
+    <button class="btn btn-ghost" style="margin-top: 0.5rem;" onclick="closeModal()">Cancelar</button>
+  </div>
+</div>
+
 <script>
 /* ================================================================
    GERENCIADOR FINANCEIRO - IARA
@@ -879,6 +1109,15 @@ const DEFAULT_FIXAS = [
   { nome: "Água",       valor: 0 },
   { nome: "Internet",   valor: 89.90 },
   { nome: "Celular",    valor: 99.98 },
+];
+
+const DEFAULT_PRESETS = [
+  { label: "Uber",       valor: 22,  categoria: "Transporte", emoji: "🚗" },
+  { label: "99",         valor: 18,  categoria: "Transporte", emoji: "🚙" },
+  { label: "iFood",      valor: 35,  categoria: "Ifood",      emoji: "🍔" },
+  { label: "Mercado",    valor: 80,  categoria: "Supermercado", emoji: "🛒" },
+  { label: "Farmácia",   valor: 50,  categoria: "Farmácia",   emoji: "💊" },
+  { label: "Café",       valor: 12,  categoria: "Lazer",      emoji: "☕" },
 ];
 
 const DEFAULT_DIVIDAS = [
@@ -967,7 +1206,12 @@ let state = loadState();
 function loadState() {
   const saved = localStorage.getItem('iara-financas-v1');
   if (saved) {
-    try { return JSON.parse(saved); } catch(e) {}
+    try {
+      const s = JSON.parse(saved);
+      // backward-compat: presets podem não existir em dados antigos
+      if (!s.presets) s.presets = DEFAULT_PRESETS;
+      return s;
+    } catch(e) {}
   }
   // Primeiro acesso: pré-carrega transações do ciclo atual
   return {
@@ -976,6 +1220,7 @@ function loadState() {
     fixas: DEFAULT_FIXAS,
     dividas: DEFAULT_DIVIDAS,
     config: DEFAULT_CONFIG,
+    presets: DEFAULT_PRESETS,
   };
 }
 
@@ -985,17 +1230,74 @@ function saveState() {
 
 // === CICLO atual ===
 function getCicloAtual() {
+  return getCicloPorOffset(0);
+}
+
+// offset 0 = ciclo atual; -1 = anterior; +1 = próximo
+function getCicloPorOffset(offset) {
   const hoje = new Date();
   const dia = hoje.getDate();
+  const diaFech = state.config.diaFechamento;
   let inicio, fim;
-  if (dia >= state.config.diaFechamento) {
-    inicio = new Date(hoje.getFullYear(), hoje.getMonth(), state.config.diaFechamento);
-    fim = new Date(hoje.getFullYear(), hoje.getMonth()+1, state.config.diaFechamento - 1);
+  if (dia >= diaFech) {
+    inicio = new Date(hoje.getFullYear(), hoje.getMonth() + offset, diaFech);
+    fim = new Date(hoje.getFullYear(), hoje.getMonth() + offset + 1, diaFech - 1);
   } else {
-    inicio = new Date(hoje.getFullYear(), hoje.getMonth()-1, state.config.diaFechamento);
-    fim = new Date(hoje.getFullYear(), hoje.getMonth(), state.config.diaFechamento - 1);
+    inicio = new Date(hoje.getFullYear(), hoje.getMonth() - 1 + offset, diaFech);
+    fim = new Date(hoje.getFullYear(), hoje.getMonth() + offset, diaFech - 1);
   }
-  return { inicio, fim };
+  return { inicio, fim, offset };
+}
+
+// Chave do ciclo no formato "YYYY-MM" (mês do vencimento, que é o mês onde está o fim)
+function getCicloKey(ciclo) {
+  const fim = ciclo.fim;
+  return `${fim.getFullYear()}-${(fim.getMonth()+1).toString().padStart(2,'0')}`;
+}
+
+// Label curto do ciclo: "Jun/26"
+function getCicloLabel(ciclo) {
+  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  return `${meses[ciclo.fim.getMonth()]}/${ciclo.fim.getFullYear().toString().slice(-2)}`;
+}
+
+// Label longo: "11 Mai → 10 Jun"
+function getCicloLabelLongo(ciclo) {
+  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  return `${ciclo.inicio.getDate().toString().padStart(2,'0')} ${meses[ciclo.inicio.getMonth()]} → ${ciclo.fim.getDate().toString().padStart(2,'0')} ${meses[ciclo.fim.getMonth()]}`;
+}
+
+// Lista os últimos N ciclos (incluindo o atual)
+function ultimosCiclos(n) {
+  const out = [];
+  for (let i = n - 1; i >= 0; i--) out.push(getCicloPorOffset(-i));
+  return out;
+}
+
+// Parse seguro de data ISO yyyy-mm-dd
+function parseDate(s) {
+  const [a, m, d] = s.split('-').map(Number);
+  return new Date(a, m - 1, d);
+}
+
+// Filtra transações por ciclo
+function txDoCicloOffset(offset) {
+  const { inicio, fim } = getCicloPorOffset(offset);
+  return state.transacoes.filter(t => {
+    const d = parseDate(t.data);
+    return d >= inicio && d <= fim;
+  });
+}
+
+// Gasto total em um ciclo (opcionalmente filtra por categoria)
+function gastoTotalCiclo(ciclo, categoria = null) {
+  const { inicio, fim } = ciclo;
+  let txs = state.transacoes.filter(t => {
+    const d = parseDate(t.data);
+    return d >= inicio && d <= fim;
+  });
+  if (categoria) txs = txs.filter(t => t.categoria === categoria);
+  return txs.reduce((s, t) => s + t.valor, 0);
 }
 
 function diasNoCiclo() {
@@ -1119,12 +1421,146 @@ function renderDashboard() {
     card.onclick = () => card.classList.toggle('expanded');
     list.appendChild(card);
   });
+
+  renderAlerts();
+  renderTop5();
+}
+
+// === ALERTAS automáticos ===
+function renderAlerts() {
+  const box = document.getElementById('alerts-list');
+  box.innerHTML = '';
+  const alerts = [];
+
+  const total = totalGastoCiclo();
+  const meta = state.config.metaFatura;
+  const dias = diasNoCiclo();
+  const diaAtual = Math.max(1, diaCorrente());
+  const projecao = (total / diaAtual) * dias; // projeção linear
+
+  // Alerta 1: ritmo da fatura
+  if (total > meta) {
+    alerts.push({
+      tipo: 'danger',
+      icon: '🚨',
+      texto: `Você já <strong>estourou</strong> a meta de fatura em <strong>${fmt(total - meta)}</strong>. Reduza gastos no resto do ciclo.`
+    });
+  } else if (projecao > meta * 1.1) {
+    alerts.push({
+      tipo: 'danger',
+      icon: '📈',
+      texto: `Nesse ritmo, sua fatura vai fechar em <strong>${fmt(projecao)}</strong> (${Math.round((projecao/meta-1)*100)}% acima da meta).`
+    });
+  } else if (projecao > meta) {
+    alerts.push({
+      tipo: 'warning',
+      icon: '⚠️',
+      texto: `Atenção: projeção da fatura é <strong>${fmt(projecao)}</strong>. Está prestes a estourar a meta de ${fmt(meta)}.`
+    });
+  } else if (diaAtual > 15 && total < meta * 0.5) {
+    alerts.push({
+      tipo: 'success',
+      icon: '💪',
+      texto: `Excelente! Já passou mais da metade do ciclo e você está com só <strong>${fmt(total)}</strong>. Continue assim!`
+    });
+  }
+
+  // Alerta 2: categorias estourando comparado com média
+  const ciclos = ultimosCiclos(4); // atual + 3 anteriores
+  const cicloAtual = ciclos[ciclos.length - 1];
+  const cicloAnteriores = ciclos.slice(0, -1);
+  if (cicloAnteriores.length >= 2) {
+    state.categorias.forEach(cat => {
+      const atual = gastoTotalCiclo(cicloAtual, cat.nome);
+      const medias = cicloAnteriores.map(c => gastoTotalCiclo(c, cat.nome));
+      const mediaAnt = medias.reduce((s,v) => s+v, 0) / medias.length;
+      if (mediaAnt > 50 && atual > mediaAnt * 1.3) {
+        const pctMaior = Math.round((atual / mediaAnt - 1) * 100);
+        alerts.push({
+          tipo: 'warning',
+          icon: cat.emoji || '⚠️',
+          texto: `Você já gastou <strong>${fmt(atual)}</strong> em <strong>${cat.nome}</strong> neste ciclo — <strong>${pctMaior}% acima</strong> da média dos últimos meses (${fmt(mediaAnt)}).`
+        });
+      }
+    });
+  }
+
+  // Limitar a 3 alertas
+  alerts.slice(0, 3).forEach(a => {
+    const div = document.createElement('div');
+    div.className = `alert-card ${a.tipo}`;
+    div.innerHTML = `<div class="alert-icon">${a.icon}</div><div>${a.texto}</div>`;
+    box.appendChild(div);
+  });
+}
+
+// === TOP 5 MAIORES GASTOS ===
+function renderTop5() {
+  const box = document.getElementById('top5-list');
+  const txs = txDoCicloOffset(0)
+    .filter(t => t.valor > 0)
+    .sort((a, b) => b.valor - a.valor)
+    .slice(0, 5);
+
+  if (txs.length === 0) {
+    box.innerHTML = `<div class="empty-state" style="padding:1.5rem;"><small>Nenhum lançamento neste ciclo ainda.</small></div>`;
+    return;
+  }
+  box.innerHTML = '';
+  txs.forEach((t, i) => {
+    const cat = state.categorias.find(c => c.nome === t.categoria);
+    const emoji = cat?.emoji || '📌';
+    const d = parseDate(t.data);
+    const dataFmt = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}`;
+    const div = document.createElement('div');
+    div.className = 'top5-item';
+    div.innerHTML = `
+      <div class="top5-rank">${i+1}</div>
+      <div class="top5-info">
+        <div class="top5-desc">${emoji} ${t.desc || t.categoria}</div>
+        <div class="top5-meta">${dataFmt} · ${t.categoria}</div>
+      </div>
+      <div class="top5-value">${fmt(t.valor)}</div>
+    `;
+    div.onclick = () => openEditTx(t.id);
+    box.appendChild(div);
+  });
 }
 
 // === RENDER TRANSACTIONS ===
 let txFilter = 'all';
+let txCicloOffset = 0; // 0 = atual; -1 = anterior; null = todos
 function renderTx() {
-  // filtros
+  // ===== Filtro por PERÍODO (ciclo) =====
+  const frc = document.getElementById('filter-row-ciclo');
+  frc.innerHTML = '';
+  // Encontrar quais ciclos têm dados (até 6 atrás)
+  const ciclosDisponiveis = [];
+  for (let off = 0; off >= -11; off--) {
+    const c = getCicloPorOffset(off);
+    const tem = state.transacoes.some(t => {
+      const d = parseDate(t.data);
+      return d >= c.inicio && d <= c.fim;
+    });
+    if (tem || off === 0) ciclosDisponiveis.push({ offset: off, ciclo: c });
+    if (ciclosDisponiveis.length >= 6) break;
+  }
+
+  ciclosDisponiveis.forEach(({ offset, ciclo }) => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-chip' + (txCicloOffset === offset ? ' active' : '');
+    btn.textContent = (offset === 0 ? '⦿ ' : '') + getCicloLabel(ciclo);
+    btn.onclick = () => { txCicloOffset = offset; renderTx(); };
+    frc.appendChild(btn);
+  });
+  // chip "Todos"
+  const btnAll = document.createElement('button');
+  btnAll.className = 'filter-chip' + (txCicloOffset === null ? ' active' : '');
+  btnAll.textContent = 'Todos';
+  btnAll.onclick = () => { txCicloOffset = null; renderTx(); };
+  frc.appendChild(btnAll);
+
+  // ===== Filtro por CATEGORIA =====
   const fr = document.getElementById('filter-row');
   fr.innerHTML = '<button class="filter-chip ' + (txFilter==='all'?'active':'') + '" data-filter="all">Todas</button>';
   state.categorias.forEach(c => {
@@ -1136,13 +1572,38 @@ function renderTx() {
   });
   fr.querySelector('[data-filter="all"]').onclick = () => { txFilter = 'all'; renderTx(); };
 
-  // lista
-  const lista = document.getElementById('tx-list');
+  // ===== Aplicar filtros =====
   let txs = [...state.transacoes].sort((a,b) => b.data.localeCompare(a.data));
+  if (txCicloOffset !== null) {
+    const c = getCicloPorOffset(txCicloOffset);
+    txs = txs.filter(t => {
+      const d = parseDate(t.data);
+      return d >= c.inicio && d <= c.fim;
+    });
+  }
   if (txFilter !== 'all') txs = txs.filter(t => t.categoria === txFilter);
 
+  // ===== Resumo no topo =====
+  const summary = document.getElementById('tx-summary');
+  const total = txs.reduce((s, t) => s + t.valor, 0);
+  let periodoLabel;
+  if (txCicloOffset === null) periodoLabel = 'Todos os ciclos';
+  else {
+    const c = getCicloPorOffset(txCicloOffset);
+    periodoLabel = getCicloLabelLongo(c);
+  }
+  summary.innerHTML = `
+    <div>
+      <div class="summary-label">${periodoLabel}</div>
+      <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">${txs.length} lançamento${txs.length===1?'':'s'} ${txFilter==='all'?'':'· '+txFilter}</div>
+    </div>
+    <div class="summary-value">${fmt(total)}</div>
+  `;
+
+  // ===== Lista =====
+  const lista = document.getElementById('tx-list');
   if (txs.length === 0) {
-    lista.innerHTML = `<div class="empty-state"><div class="emoji">🧾</div>Nenhum lançamento ${txFilter==='all'?'ainda':'nesta categoria'}.<br><small>Toque no + para adicionar.</small></div>`;
+    lista.innerHTML = `<div class="empty-state"><div class="emoji">🧾</div>Nenhum lançamento ${txFilter==='all'?'':'nesta categoria '}para este período.<br><small>Mude o filtro ou toque no + para adicionar.</small></div>`;
     return;
   }
 
@@ -1150,7 +1611,7 @@ function renderTx() {
   txs.forEach(t => {
     const cat = state.categorias.find(c => c.nome === t.categoria);
     const emoji = cat?.emoji || '📌';
-    const d = new Date(t.data);
+    const d = parseDate(t.data);
     const dataFmt = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}`;
 
     const item = document.createElement('div');
@@ -1166,6 +1627,136 @@ function renderTx() {
     item.onclick = () => openEditTx(t.id);
     lista.appendChild(item);
   });
+}
+
+// === RENDER COMPARATIVO ===
+let compMode = 'total'; // 'total' ou 'cat'
+let compCat = null;
+
+function renderComp() {
+  // Toggle Total vs Categoria
+  document.querySelectorAll('#comp-mode-row .filter-chip').forEach(b => {
+    b.classList.toggle('active', b.dataset.compMode === compMode);
+    b.onclick = () => { compMode = b.dataset.compMode; if (compMode === 'cat' && !compCat) compCat = state.categorias[0]?.nome; renderComp(); };
+  });
+
+  document.getElementById('comp-cat-row').style.display = compMode === 'cat' ? '' : 'none';
+
+  if (compMode === 'cat') {
+    const chips = document.getElementById('comp-cat-chips');
+    chips.innerHTML = '';
+    state.categorias.forEach(c => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-chip' + (compCat === c.nome ? ' active' : '');
+      btn.textContent = `${c.emoji||''} ${c.nome}`;
+      btn.onclick = () => { compCat = c.nome; renderComp(); };
+      chips.appendChild(btn);
+    });
+  }
+
+  // Dados dos 6 últimos ciclos
+  const ciclos = ultimosCiclos(6);
+  const dadosCiclos = ciclos.map(c => ({
+    ciclo: c,
+    valor: gastoTotalCiclo(c, compMode === 'cat' ? compCat : null),
+  }));
+
+  // Stats: média, variação último vs penúltimo
+  const valores = dadosCiclos.map(d => d.valor);
+  const media = valores.reduce((s,v) => s+v, 0) / valores.length;
+  document.getElementById('comp-media').textContent = fmt(media);
+
+  const varEl = document.getElementById('comp-variacao');
+  if (dadosCiclos.length >= 2) {
+    const ult = dadosCiclos[dadosCiclos.length - 1].valor;
+    const pen = dadosCiclos[dadosCiclos.length - 2].valor;
+    if (pen > 0) {
+      const pct = ((ult - pen) / pen) * 100;
+      const sinal = pct >= 0 ? '+' : '';
+      varEl.textContent = sinal + pct.toFixed(1) + '%';
+      varEl.style.color = pct >= 0 ? 'var(--red)' : 'var(--green)';
+    } else {
+      varEl.textContent = '—';
+      varEl.style.color = 'var(--text-muted)';
+    }
+  } else {
+    varEl.textContent = '—';
+  }
+
+  // === SVG do gráfico de barras ===
+  const chartBox = document.getElementById('comp-chart');
+  const meta = compMode === 'total' ? state.config.metaFatura :
+               (state.categorias.find(c => c.nome === compCat)?.meta || 0);
+  const maxVal = Math.max(...valores, meta, 1);
+  const w = 320, h = 220;
+  const barW = (w - 40) / dadosCiclos.length - 8;
+  const yScale = (v) => (v / maxVal) * (h - 60);
+  const baseY = h - 30;
+
+  let svg = `<svg viewBox="0 0 ${w} ${h}" class="comp-chart-svg" xmlns="http://www.w3.org/2000/svg">`;
+
+  // linha de meta (se houver)
+  if (meta > 0) {
+    const yMeta = baseY - yScale(meta);
+    svg += `<line x1="20" y1="${yMeta}" x2="${w-20}" y2="${yMeta}" stroke="#22C55E" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.7"/>`;
+    svg += `<text x="${w-22}" y="${yMeta-4}" fill="#22C55E" font-size="9" font-family="DM Sans" text-anchor="end" font-weight="700">Meta ${fmt(meta)}</text>`;
+  }
+
+  // barras
+  dadosCiclos.forEach((d, i) => {
+    const x = 20 + i * (barW + 8) + 4;
+    const bh = yScale(d.valor);
+    const y = baseY - bh;
+    const isCurrent = d.ciclo.offset === 0;
+    const cor = isCurrent ? '#A855F7' : (d.valor > meta && meta > 0 ? '#EF4444' : '#5C5C68');
+    const classCss = 'comp-bar' + (isCurrent ? ' comp-bar-current' : '');
+    svg += `<rect class="${classCss}" x="${x}" y="${y}" width="${barW}" height="${Math.max(bh, 2)}" rx="4" fill="${cor}"/>`;
+    // valor em cima
+    if (d.valor > 0) {
+      svg += `<text x="${x + barW/2}" y="${y - 4}" fill="#F5F5F7" font-size="9" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">${fmtBarVal(d.valor)}</text>`;
+    }
+    // label do mês embaixo
+    svg += `<text x="${x + barW/2}" y="${baseY + 14}" fill="${isCurrent ? '#A855F7' : '#8B8B96'}" font-size="10" font-family="DM Sans" font-weight="${isCurrent ? '700' : '500'}" text-anchor="middle">${getCicloLabel(d.ciclo)}</text>`;
+  });
+
+  // linha base
+  svg += `<line x1="15" y1="${baseY}" x2="${w-15}" y2="${baseY}" stroke="#2A2A37" stroke-width="1"/>`;
+  svg += `</svg>`;
+  chartBox.innerHTML = svg;
+
+  // === Tabela detalhada ===
+  const tabela = document.getElementById('comp-table');
+  tabela.innerHTML = '';
+  const arr = [...dadosCiclos].reverse(); // mais recente primeiro
+  arr.forEach((d, i) => {
+    const isCurrent = d.ciclo.offset === 0;
+    const row = document.createElement('div');
+    row.className = 'comp-table-row' + (isCurrent ? ' is-current' : '');
+
+    let diffHtml = '';
+    if (i < arr.length - 1) {
+      const ant = arr[i+1].valor;
+      if (ant > 0) {
+        const pct = ((d.valor - ant) / ant) * 100;
+        const sinal = pct >= 0 ? '+' : '';
+        const cls = Math.abs(pct) < 1 ? 'eq' : (pct > 0 ? 'up' : 'down');
+        diffHtml = `<span class="ciclo-diff ${cls}">${sinal}${pct.toFixed(0)}%</span>`;
+      }
+    }
+
+    row.innerHTML = `
+      <div class="ciclo-name">${getCicloLabel(d.ciclo)} ${isCurrent ? '⦿' : ''}<small>${getCicloLabelLongo(d.ciclo)}</small></div>
+      <div class="ciclo-value">${fmt(d.valor)}</div>
+      <div>${diffHtml}</div>
+    `;
+    tabela.appendChild(row);
+  });
+}
+
+// formato compacto para etiqueta de barra
+function fmtBarVal(v) {
+  if (v >= 1000) return (v / 1000).toFixed(1).replace('.', ',') + 'k';
+  return v.toFixed(0);
 }
 
 // === RENDER CATEGORIES (página) ===
@@ -1280,6 +1871,9 @@ function renderConfig() {
     const total = state.transacoes.length;
     bcEl.textContent = `${total} lançamento${total !== 1 ? 's' : ''}`;
   }
+
+  // presets
+  renderPresetsConfig();
 }
 
 // === MODAL TX ===
@@ -1296,8 +1890,37 @@ function openTxModal() {
   document.getElementById('tx-desc').value = '';
   const hoje = new Date();
   document.getElementById('tx-data').value = hoje.toISOString().split('T')[0];
+
+  // Renderiza presets dentro do modal
+  const pr = document.getElementById('preset-row');
+  pr.innerHTML = '';
+  state.presets.forEach((p, i) => {
+    const b = document.createElement('button');
+    b.className = 'preset-btn';
+    b.innerHTML = `<span class="preset-emoji">${p.emoji||'📌'}</span><span>${p.label}</span><span class="preset-val">${fmtShort(p.valor)}</span>`;
+    b.onclick = () => applyPreset(i);
+    pr.appendChild(b);
+  });
+
   document.getElementById('modal-tx').classList.add('active');
   setTimeout(() => document.getElementById('tx-valor').focus(), 100);
+}
+
+// Aplicar preset: preenche os campos e foca no valor (pra ajustar se quiser)
+function applyPreset(idx) {
+  const p = state.presets[idx];
+  if (!p) return;
+  document.getElementById('tx-valor').value = p.valor;
+  document.getElementById('tx-cat').value = p.categoria;
+  document.getElementById('tx-desc').value = p.label;
+  // Pequena vibração visual
+  toast(`⚡ ${p.label} preenchido`);
+  // foco no valor pra revisar
+  setTimeout(() => {
+    const inp = document.getElementById('tx-valor');
+    inp.focus();
+    inp.select && inp.select();
+  }, 80);
 }
 
 function saveTx() {
@@ -1494,6 +2117,148 @@ function deleteItem() {
   renderAll();
 }
 
+// === PRESETS ===
+function renderPresetsConfig() {
+  const box = document.getElementById('config-presets');
+  if (!box) return;
+  box.innerHTML = '';
+  state.presets.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'config-item';
+    div.innerHTML = `
+      <span class="name">${p.emoji||'📌'} ${p.label} <small style="color:var(--text-muted); font-weight:400;">· ${p.categoria}</small></span>
+      <span class="value mono">${fmt(p.valor)}</span>
+      <button class="icon-btn">✏️</button>
+    `;
+    div.onclick = () => openEditPreset(i);
+    box.appendChild(div);
+  });
+  if (state.presets.length === 0) {
+    box.innerHTML = `<div style="color:var(--text-muted); font-size:0.85rem; padding: 0.5rem 0;">Nenhum preset cadastrado.</div>`;
+  }
+}
+
+function openAddPreset() {
+  document.getElementById('preset-modal-title').textContent = 'Novo preset';
+  document.getElementById('preset-idx').value = '-1';
+  document.getElementById('preset-emoji').value = '';
+  document.getElementById('preset-label').value = '';
+  document.getElementById('preset-valor').value = '';
+  fillPresetCatSelect();
+  document.getElementById('preset-del-btn').style.display = 'none';
+  document.getElementById('modal-preset').classList.add('active');
+}
+
+function openEditPreset(idx) {
+  const p = state.presets[idx];
+  if (!p) return;
+  document.getElementById('preset-modal-title').textContent = 'Editar preset';
+  document.getElementById('preset-idx').value = idx;
+  document.getElementById('preset-emoji').value = p.emoji || '';
+  document.getElementById('preset-label').value = p.label;
+  document.getElementById('preset-valor').value = p.valor;
+  fillPresetCatSelect(p.categoria);
+  document.getElementById('preset-del-btn').style.display = '';
+  document.getElementById('modal-preset').classList.add('active');
+}
+
+function fillPresetCatSelect(selected) {
+  const sel = document.getElementById('preset-cat');
+  sel.innerHTML = '';
+  state.categorias.sort((a,b)=>a.nome.localeCompare(b.nome,'pt')).forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.nome;
+    opt.textContent = `${c.emoji||''} ${c.nome}`;
+    if (c.nome === selected) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function savePreset() {
+  const idx = parseInt(document.getElementById('preset-idx').value);
+  const emoji = document.getElementById('preset-emoji').value.trim();
+  const label = document.getElementById('preset-label').value.trim();
+  const valor = parseFloat(document.getElementById('preset-valor').value);
+  const categoria = document.getElementById('preset-cat').value;
+  if (!label) { alert('Informe o rótulo.'); return; }
+  if (isNaN(valor) || valor <= 0) { alert('Valor inválido.'); return; }
+  const novo = { label, valor, categoria, emoji };
+  if (idx === -1) state.presets.push(novo);
+  else state.presets[idx] = novo;
+  saveState();
+  closeModal();
+  toast('✓ Salvo');
+  renderAll();
+}
+
+function deletePreset() {
+  const idx = parseInt(document.getElementById('preset-idx').value);
+  if (idx < 0) return;
+  if (!confirm('Excluir este preset?')) return;
+  state.presets.splice(idx, 1);
+  saveState();
+  closeModal();
+  toast('✓ Excluído');
+  renderAll();
+}
+
+// === EXPORT TX para CSV ===
+function exportTxCsv() {
+  let txs = [...state.transacoes].sort((a,b) => b.data.localeCompare(a.data));
+  if (txCicloOffset !== null) {
+    const c = getCicloPorOffset(txCicloOffset);
+    txs = txs.filter(t => {
+      const d = parseDate(t.data);
+      return d >= c.inicio && d <= c.fim;
+    });
+  }
+  if (txFilter !== 'all') txs = txs.filter(t => t.categoria === txFilter);
+
+  if (txs.length === 0) {
+    toast('Nenhum lançamento para exportar');
+    return;
+  }
+
+  // CSV com BOM pra Excel reconhecer UTF-8 e abrir bem em PT-BR
+  const BOM = '\uFEFF';
+  const sep = ';';
+  const escape = (s) => {
+    s = String(s ?? '');
+    if (s.includes(';') || s.includes('"') || s.includes('\n')) {
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+    return s;
+  };
+  const header = ['Data', 'Descrição', 'Categoria', 'Valor (R$)'];
+  const rows = [header.join(sep)];
+  txs.forEach(t => {
+    const [a, m, d] = t.data.split('-');
+    rows.push([
+      `${d}/${m}/${a}`,
+      escape(t.desc || t.categoria),
+      escape(t.categoria),
+      String(t.valor).replace('.', ',')
+    ].join(sep));
+  });
+  // Linha de total
+  const tot = txs.reduce((s,t) => s + t.valor, 0);
+  rows.push('');
+  rows.push(['', '', 'TOTAL', String(tot.toFixed(2)).replace('.', ',')].join(sep));
+
+  const csv = BOM + rows.join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const sufixo = txCicloOffset === null ? 'todos' :
+                 (txCicloOffset === 0 ? 'atual' :
+                 getCicloKey(getCicloPorOffset(txCicloOffset)));
+  a.href = url;
+  a.download = `iara-lancamentos-${sufixo}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('✓ CSV exportado');
+}
+
 // === CONFIG EDITS ===
 function editRenda() { editConfigNum('renda', 'Renda mensal (R$)', 0, 999999); }
 
@@ -1565,6 +2330,7 @@ function navTo(page) {
   document.querySelector(`.nav button[data-page="${page}"]`).classList.add('active');
   window.scrollTo(0, 0);
   if (page === 'tx') renderTx();
+  if (page === 'comp') renderComp();
   if (page === 'cats') renderCategoriesPage();
   if (page === 'config') renderConfig();
   if (page === 'dashboard') renderDashboard();
@@ -1582,6 +2348,7 @@ function toast(msg) {
 function renderAll() {
   renderDashboard();
   renderTx();
+  renderComp();
   renderCategoriesPage();
   renderConfig();
 }
