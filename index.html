@@ -629,6 +629,8 @@ h3 { font-size: 1.1rem; }
 }
 .comp-table-row:last-child { border-bottom: none; }
 .comp-table-row.is-current { background: rgba(168, 85, 247, 0.05); margin: 0 -0.5rem; padding-left: 0.5rem; padding-right: 0.5rem; border-radius: 8px; }
+.comp-table-row.is-future { opacity: 0.7; }
+.comp-table-row.is-future .ciclo-value { color: var(--purple); }
 .comp-table-row .ciclo-name { font-weight: 600; }
 .comp-table-row .ciclo-name small { display:block; font-weight: 400; color: var(--text-muted); font-size: 0.7rem; }
 .comp-table-row .ciclo-value { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
@@ -801,13 +803,19 @@ h3 { font-size: 1.1rem; }
 <div class="page" id="page-comp">
   <h1 style="margin: 0.5rem 0 0.5rem;">Comparativo</h1>
   <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
-    Evolução dos seus gastos nos últimos 6 ciclos.
+    Evolução dos seus gastos nos ciclos. Inclua ciclos futuros pra ver parcelamentos comprometidos.
   </p>
 
   <div class="filter-label">Visualizar</div>
   <div class="filter-row" id="comp-mode-row">
     <button class="filter-chip active" data-comp-mode="total">Fatura total</button>
     <button class="filter-chip" data-comp-mode="cat">Por categoria</button>
+  </div>
+
+  <div class="filter-label">Período</div>
+  <div class="filter-row" id="comp-periodo-row">
+    <button class="filter-chip active" data-comp-future="off">3 anteriores + atual</button>
+    <button class="filter-chip" data-comp-future="on">+ 3 futuros</button>
   </div>
 
   <div id="comp-cat-row" style="display:none;">
@@ -818,7 +826,7 @@ h3 { font-size: 1.1rem; }
   <!-- Card resumo (média, máximo, mínimo) -->
   <div class="chip-row" style="margin-top: 0.5rem;">
     <div class="chip">
-      <div class="chip-label">Média (6 ciclos)</div>
+      <div class="chip-label" id="comp-media-label">Média</div>
       <div class="chip-value mono" id="comp-media">R$ 0</div>
     </div>
     <div class="chip">
@@ -1686,12 +1694,20 @@ function renderTx() {
 // === RENDER COMPARATIVO ===
 let compMode = 'total'; // 'total' ou 'cat'
 let compCat = null;
+let compIncluirFuturos = false; // toggle
 
 function renderComp() {
   // Toggle Total vs Categoria
   document.querySelectorAll('#comp-mode-row .filter-chip').forEach(b => {
     b.classList.toggle('active', b.dataset.compMode === compMode);
     b.onclick = () => { compMode = b.dataset.compMode; if (compMode === 'cat' && !compCat) compCat = state.categorias[0]?.nome; renderComp(); };
+  });
+
+  // Toggle período (incluir futuros)
+  document.querySelectorAll('#comp-periodo-row .filter-chip').forEach(b => {
+    const ativo = (b.dataset.compFuture === 'on') === compIncluirFuturos;
+    b.classList.toggle('active', ativo);
+    b.onclick = () => { compIncluirFuturos = (b.dataset.compFuture === 'on'); renderComp(); };
   });
 
   document.getElementById('comp-cat-row').style.display = compMode === 'cat' ? '' : 'none';
@@ -1708,22 +1724,31 @@ function renderComp() {
     });
   }
 
-  // Dados dos 6 últimos ciclos
-  const ciclos = ultimosCiclos(6);
+  // Monta lista de ciclos: 3 anteriores + atual (+ 3 futuros se ativo)
+  // ciclos com offset = -3, -2, -1, 0, (1, 2, 3)
+  const offsets = compIncluirFuturos ? [-3,-2,-1,0,1,2,3] : [-3,-2,-1,0];
+  const ciclos = offsets.map(o => getCicloPorOffset(o));
   const dadosCiclos = ciclos.map(c => ({
     ciclo: c,
     valor: gastoTotalCiclo(c, compMode === 'cat' ? compCat : null),
+    isFuture: c.offset > 0,
   }));
 
-  // Stats: média, variação último vs penúltimo
-  const valores = dadosCiclos.map(d => d.valor);
-  const media = valores.reduce((s,v) => s+v, 0) / valores.length;
+  // Stats: média ignora ciclos futuros pra não distorcer
+  const valoresPassados = dadosCiclos.filter(d => !d.isFuture).map(d => d.valor);
+  const media = valoresPassados.length > 0
+    ? valoresPassados.reduce((s,v) => s+v, 0) / valoresPassados.length
+    : 0;
   document.getElementById('comp-media').textContent = fmt(media);
+  document.getElementById('comp-media-label').textContent =
+    compIncluirFuturos ? `Média (${valoresPassados.length} ciclos passados)` : `Média (${valoresPassados.length} ciclos)`;
 
+  // Variação: último PASSADO vs penúltimo passado
   const varEl = document.getElementById('comp-variacao');
-  if (dadosCiclos.length >= 2) {
-    const ult = dadosCiclos[dadosCiclos.length - 1].valor;
-    const pen = dadosCiclos[dadosCiclos.length - 2].valor;
+  const passados = dadosCiclos.filter(d => !d.isFuture);
+  if (passados.length >= 2) {
+    const ult = passados[passados.length - 1].valor;
+    const pen = passados[passados.length - 2].valor;
     if (pen > 0) {
       const pct = ((ult - pen) / pen) * 100;
       const sinal = pct >= 0 ? '+' : '';
@@ -1741,9 +1766,10 @@ function renderComp() {
   const chartBox = document.getElementById('comp-chart');
   const meta = compMode === 'total' ? state.config.metaFatura :
                (state.categorias.find(c => c.nome === compCat)?.meta || 0);
+  const valores = dadosCiclos.map(d => d.valor);
   const maxVal = Math.max(...valores, meta, 1);
   const w = 320, h = 220;
-  const barW = (w - 40) / dadosCiclos.length - 8;
+  const barW = (w - 40) / dadosCiclos.length - 6;
   const yScale = (v) => (v / maxVal) * (h - 60);
   const baseY = h - 30;
 
@@ -1758,34 +1784,60 @@ function renderComp() {
 
   // barras
   dadosCiclos.forEach((d, i) => {
-    const x = 20 + i * (barW + 8) + 4;
+    const x = 20 + i * (barW + 6) + 2;
     const bh = yScale(d.valor);
     const y = baseY - bh;
     const isCurrent = d.ciclo.offset === 0;
-    const cor = isCurrent ? '#A855F7' : (d.valor > meta && meta > 0 ? '#EF4444' : '#5C5C68');
-    const classCss = 'comp-bar' + (isCurrent ? ' comp-bar-current' : '');
-    svg += `<rect class="${classCss}" x="${x}" y="${y}" width="${barW}" height="${Math.max(bh, 2)}" rx="4" fill="${cor}"/>`;
+    const isFuture = d.isFuture;
+    // cor base
+    let cor = '#5C5C68';
+    if (isCurrent) cor = '#A855F7';
+    else if (!isFuture && d.valor > meta && meta > 0) cor = '#EF4444';
+    else if (isFuture) cor = '#A855F7'; // futuro também é roxo, mas com transparência
+    const opacidade = isFuture ? 0.35 : 1;
+    const classCss = 'comp-bar' + (isCurrent ? ' comp-bar-current' : '') + (isFuture ? ' comp-bar-future' : '');
+    svg += `<rect class="${classCss}" x="${x}" y="${y}" width="${barW}" height="${Math.max(bh, 2)}" rx="4" fill="${cor}" opacity="${opacidade}"`;
+    // contorno tracejado se for futuro e tiver valor
+    if (isFuture && bh > 2) {
+      svg += ` stroke="#A855F7" stroke-width="1" stroke-dasharray="3 2"`;
+    }
+    svg += `/>`;
     // valor em cima
     if (d.valor > 0) {
-      svg += `<text x="${x + barW/2}" y="${y - 4}" fill="#F5F5F7" font-size="9" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">${fmtBarVal(d.valor)}</text>`;
+      const corTexto = isFuture ? '#A855F7' : '#F5F5F7';
+      svg += `<text x="${x + barW/2}" y="${y - 4}" fill="${corTexto}" font-size="9" font-family="JetBrains Mono" font-weight="700" text-anchor="middle" opacity="${isFuture ? 0.75 : 1}">${fmtBarVal(d.valor)}</text>`;
     }
     // label do mês embaixo
-    svg += `<text x="${x + barW/2}" y="${baseY + 14}" fill="${isCurrent ? '#A855F7' : '#8B8B96'}" font-size="10" font-family="DM Sans" font-weight="${isCurrent ? '700' : '500'}" text-anchor="middle">${getCicloLabel(d.ciclo)}</text>`;
+    const corLabel = isCurrent ? '#A855F7' : (isFuture ? '#8B8B96' : '#8B8B96');
+    const labelOpacity = isFuture ? 0.65 : 1;
+    svg += `<text x="${x + barW/2}" y="${baseY + 14}" fill="${corLabel}" font-size="10" font-family="DM Sans" font-weight="${isCurrent ? '700' : '500'}" text-anchor="middle" opacity="${labelOpacity}">${getCicloLabel(d.ciclo)}</text>`;
   });
 
   // linha base
   svg += `<line x1="15" y1="${baseY}" x2="${w-15}" y2="${baseY}" stroke="#2A2A37" stroke-width="1"/>`;
+
+  // legenda (se futuros estão ativos)
+  if (compIncluirFuturos) {
+    svg += `<g transform="translate(20, 8)">`;
+    svg += `<rect x="0" y="0" width="10" height="10" rx="2" fill="#A855F7"/>`;
+    svg += `<text x="14" y="9" fill="#8B8B96" font-size="9" font-family="DM Sans">Realizado</text>`;
+    svg += `<rect x="78" y="0" width="10" height="10" rx="2" fill="#A855F7" opacity="0.35" stroke="#A855F7" stroke-width="1" stroke-dasharray="2 1.5"/>`;
+    svg += `<text x="92" y="9" fill="#8B8B96" font-size="9" font-family="DM Sans">Previsto</text>`;
+    svg += `</g>`;
+  }
+
   svg += `</svg>`;
   chartBox.innerHTML = svg;
 
   // === Tabela detalhada ===
   const tabela = document.getElementById('comp-table');
   tabela.innerHTML = '';
-  const arr = [...dadosCiclos].reverse(); // mais recente primeiro
+  const arr = [...dadosCiclos].reverse(); // mais recente primeiro (futuros no topo se ativos)
   arr.forEach((d, i) => {
     const isCurrent = d.ciclo.offset === 0;
+    const isFuture = d.isFuture;
     const row = document.createElement('div');
-    row.className = 'comp-table-row' + (isCurrent ? ' is-current' : '');
+    row.className = 'comp-table-row' + (isCurrent ? ' is-current' : '') + (isFuture ? ' is-future' : '');
 
     let diffHtml = '';
     if (i < arr.length - 1) {
@@ -1798,8 +1850,9 @@ function renderComp() {
       }
     }
 
+    const tag = isFuture ? '<span style="font-size:0.65rem; color: var(--purple); margin-left:6px;">PREVISTO</span>' : '';
     row.innerHTML = `
-      <div class="ciclo-name">${getCicloLabel(d.ciclo)} ${isCurrent ? '⦿' : ''}<small>${getCicloLabelLongo(d.ciclo)}</small></div>
+      <div class="ciclo-name">${getCicloLabel(d.ciclo)} ${isCurrent ? '⦿' : ''}${tag}<small>${getCicloLabelLongo(d.ciclo)}</small></div>
       <div class="ciclo-value">${fmt(d.valor)}</div>
       <div>${diffHtml}</div>
     `;
