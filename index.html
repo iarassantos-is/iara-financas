@@ -407,6 +407,19 @@ h3 { font-size: 1.1rem; }
   color: var(--text-muted);
   margin-top: 2px;
 }
+.parcela-badge {
+  display: inline-block;
+  background: rgba(168, 85, 247, 0.15);
+  color: var(--purple);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 100px;
+  margin-left: 6px;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+}
+.parcela-badge::before { content: "📆 "; font-size: 0.7em; }
 .tx-value {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
@@ -959,6 +972,28 @@ h3 { font-size: 1.1rem; }
       <label>Data</label>
       <input type="date" id="tx-data">
     </div>
+    <div class="form-row">
+      <label>Parcelas</label>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; align-items:center;">
+        <select id="tx-parcelas">
+          <option value="1">À vista</option>
+          <option value="2">2x</option>
+          <option value="3">3x</option>
+          <option value="4">4x</option>
+          <option value="5">5x</option>
+          <option value="6">6x</option>
+          <option value="7">7x</option>
+          <option value="8">8x</option>
+          <option value="9">9x</option>
+          <option value="10">10x</option>
+          <option value="11">11x</option>
+          <option value="12">12x</option>
+          <option value="18">18x</option>
+          <option value="24">24x</option>
+        </select>
+        <div id="tx-parcela-info" style="font-size:0.75rem; color: var(--text-muted); padding: 0 0.25rem;">À vista</div>
+      </div>
+    </div>
     <div class="btn-row">
       <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
       <button class="btn" onclick="saveTx()">Salvar</button>
@@ -1079,6 +1114,26 @@ h3 { font-size: 1.1rem; }
   </div>
 </div>
 
+<!-- ==== MODAL: Ação em parcela (escolha "só esta" ou "todas") ==== -->
+<div class="modal-overlay" id="modal-parcela-acao">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 id="parcela-acao-titulo">Editar parcela</h2>
+    <p id="parcela-acao-msg" style="color: var(--text-dim); font-size: 0.88rem; margin-bottom: 1.25rem; line-height: 1.45;"></p>
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <button class="btn btn-ghost" onclick="parcelaAcaoChoice('uma')" style="text-align:left; justify-content:flex-start; padding: 1rem;">
+        <strong style="display:block;">Apenas esta parcela</strong>
+        <small style="color: var(--text-muted); font-weight: 400;">As outras parcelas dessa compra ficam intactas</small>
+      </button>
+      <button class="btn" onclick="parcelaAcaoChoice('todas')" style="text-align:left; justify-content:flex-start; padding: 1rem;">
+        <strong style="display:block;">Todas as parcelas desta compra</strong>
+        <small style="color: rgba(255,255,255,0.75); font-weight: 400;">Afeta todas as <span id="parcela-acao-qtd">—</span> parcelas</small>
+      </button>
+    </div>
+    <button class="btn btn-ghost" style="margin-top: 0.6rem;" onclick="closeModal()">Cancelar</button>
+  </div>
+</div>
+
 <script>
 /* ================================================================
    GERENCIADOR FINANCEIRO - IARA
@@ -1135,69 +1190,64 @@ const DEFAULT_CONFIG = {
 
 // === TRANSAÇÕES PRÉ-CARREGADAS (ciclo 11/05/2026) ===
 const PRELOADED_TRANSACTIONS = [
-  // Transporte - 99 e Uber
-  { id: 'pre-001', data: '2026-05-20', desc: '99 Ride',          categoria: 'Transporte', valor: 13.96 },
-  { id: 'pre-002', data: '2026-05-20', desc: '99 Ride',          categoria: 'Transporte', valor: 13.06 },
-  { id: 'pre-003', data: '2026-05-19', desc: 'Uber',             categoria: 'Transporte', valor: 11.91 },
-  { id: 'pre-004', data: '2026-05-19', desc: '99 Ride',          categoria: 'Transporte', valor: 14.30 },
-  { id: 'pre-005', data: '2026-05-18', desc: 'Uber',             categoria: 'Transporte', valor: 12.55 },
-  { id: 'pre-006', data: '2026-05-18', desc: 'Uber',             categoria: 'Transporte', valor: 4.06  },
-  { id: 'pre-007', data: '2026-05-18', desc: 'Uber',             categoria: 'Transporte', valor: 14.55 },
-  { id: 'pre-008', data: '2026-05-16', desc: 'Uber',             categoria: 'Transporte', valor: 13.59 },
-  { id: 'pre-009', data: '2026-05-16', desc: '99 Ride',          categoria: 'Transporte', valor: 15.10 },
-  { id: 'pre-010', data: '2026-05-15', desc: 'Uber',             categoria: 'Transporte', valor: 8.72  },
-  { id: 'pre-011', data: '2026-05-15', desc: '99 Ride',          categoria: 'Transporte', valor: 13.10 },
-  { id: 'pre-012', data: '2026-05-14', desc: 'Uber',             categoria: 'Transporte', valor: 11.78 },
-  { id: 'pre-013', data: '2026-05-14', desc: 'Uber',             categoria: 'Transporte', valor: 15.78 },
-  { id: 'pre-014', data: '2026-05-14', desc: '99 Ride',          categoria: 'Transporte', valor: 13.90 },
-  { id: 'pre-015', data: '2026-05-13', desc: 'Uber',             categoria: 'Transporte', valor: 11.24 },
-  { id: 'pre-016', data: '2026-05-13', desc: 'Uber',             categoria: 'Transporte', valor: 6.59  },
-  { id: 'pre-017', data: '2026-05-13', desc: 'Uber',             categoria: 'Transporte', valor: 14.13 },
-  { id: 'pre-018', data: '2026-05-12', desc: 'Uber',             categoria: 'Transporte', valor: 12.91 },
-  { id: 'pre-019', data: '2026-05-12', desc: 'Uber',             categoria: 'Transporte', valor: 17.65 },
-  { id: 'pre-020', data: '2026-05-12', desc: '99 Ride',          categoria: 'Transporte', valor: 13.80 },
-  { id: 'pre-021', data: '2026-05-12', desc: '99 Ride',          categoria: 'Transporte', valor: 14.00 },
-  { id: 'pre-022', data: '2026-05-12', desc: '99 App',           categoria: 'Transporte', valor: 14.50 },
-  // iFood
-  { id: 'pre-023', data: '2026-05-19', desc: 'iFood',            categoria: 'Ifood',      valor: 30.89 },
-  { id: 'pre-024', data: '2026-05-18', desc: 'iFood',            categoria: 'Ifood',      valor: 14.89 },
-  { id: 'pre-025', data: '2026-05-15', desc: 'iFood',            categoria: 'Ifood',      valor: 41.92 },
-  // Saúde
-  { id: 'pre-026', data: '2026-05-17', desc: 'Mp *Docevida',     categoria: 'Saúde',      valor: 117.00 },
-  // Lazer
-  { id: 'pre-027', data: '2026-05-17', desc: 'O Candia Bar',     categoria: 'Lazer',      valor: 17.00  },
-  // Shopee - Futilidade
-  { id: 'pre-028', data: '2026-05-18', desc: 'Shopee - Cases',   categoria: 'Futilidades', valor: 14.98 },
-  // Supermercado
-  { id: 'pre-029', data: '2026-05-17', desc: 'Amazon - Limpeza', categoria: 'Supermercado', valor: 55.83 },
-  // Viagens
-  { id: 'pre-030', data: '2026-05-17', desc: 'Azul Linhas (1/4)',categoria: 'Viagens',    valor: 333.08 },
-  { id: 'pre-031', data: '2026-05-11', desc: 'Buser (4/4)',      categoria: 'Viagens',    valor: 197.05 },
-  // Vestuário
-  { id: 'pre-032', data: '2026-05-16', desc: 'Anebi (1/2)',      categoria: 'Vestuário',  valor: 124.90 },
-  { id: 'pre-033', data: '2026-05-13', desc: 'Anebi (1/4)',      categoria: 'Vestuário',  valor: 214.60 },
-  { id: 'pre-034', data: '2026-05-15', desc: 'Shein (1/2)',      categoria: 'Vestuário',  valor: 154.73 },
-  { id: 'pre-035', data: '2026-05-14', desc: 'Digitech - Tênis (1/3)', categoria: 'Vestuário', valor: 300.00 },
-  // Pix/Boleto
-  { id: 'pre-036', data: '2026-05-15', desc: 'Claude.ai',        categoria: 'Pix/Boleto', valor: 115.98 },
-  { id: 'pre-037', data: '2026-05-11', desc: 'Clube Livelo',     categoria: 'Pix/Boleto', valor: 44.90  },
-  { id: 'pre-038', data: '2026-05-15', desc: 'IOF internacional', categoria: 'Pix/Boleto', valor: 4.05  },
-  // Educação
-  { id: 'pre-039', data: '2026-05-11', desc: 'Beconfident (3/12)', categoria: 'Educação', valor: 59.82  },
-  { id: 'pre-040', data: '2026-05-11', desc: 'Faal EAD (5/12)',   categoria: 'Educação',  valor: 100.00 },
-  { id: 'pre-041', data: '2026-05-11', desc: 'Htm* Arq Resumos (7/7)', categoria: 'Educação', valor: 18.80 },
-  // Beleza
-  { id: 'pre-042', data: '2026-05-16', desc: "Loccitane (2/3)",  categoria: 'Beleza',     valor: 105.96 },
-  { id: 'pre-043', data: '2026-05-14', desc: 'Chantall Est (2/2)', categoria: 'Beleza',   valor: 162.75 },
-  // Presentes
-  { id: 'pre-044', data: '2026-05-11', desc: 'Windsor Cidade (2/2)', categoria: 'Presentes', valor: 189.97 },
-  // Farmácia (Araujo Online)
-  { id: 'pre-045', data: '2026-05-11', desc: 'Araujo Online (2/2)', categoria: 'Saúde',   valor: 35.73  },
-  { id: 'pre-046', data: '2026-05-11', desc: 'Araujo Online (3/3)', categoria: 'Saúde',   valor: 92.32  },
-  { id: 'pre-047', data: '2026-05-11', desc: 'Araujo Online (2/2)', categoria: 'Saúde',   valor: 64.68  },
-  { id: 'pre-048', data: '2026-05-11', desc: 'Araujo Online (3/3)', categoria: 'Saúde',   valor: 80.74  },
-  // Beleza
-  { id: 'pre-049', data: '2026-05-11', desc: 'Htm*Isabela Schnorr (3/3)', categoria: 'Beleza', valor: 104.78 },
+  { id: 'pre-000', data: '2026-05-20', desc: 'Dl*99 Ride', categoria: 'Transporte', valor: 13.96 },
+  { id: 'pre-001', data: '2026-05-20', desc: 'Dl*99 Ride', categoria: 'Transporte', valor: 13.06 },
+  { id: 'pre-002', data: '2026-05-19', desc: 'iFood - NuPay', categoria: 'Ifood', valor: 30.89 },
+  { id: 'pre-003', data: '2026-05-19', desc: 'Uber - NuPay', categoria: 'Transporte', valor: 14.91 },
+  { id: 'pre-004', data: '2026-05-19', desc: 'Uber - NuPay', categoria: 'Transporte', valor: -14.91 },
+  { id: 'pre-005', data: '2026-05-19', desc: 'Uber - NuPay', categoria: 'Transporte', valor: 11.91 },
+  { id: 'pre-006', data: '2026-05-19', desc: 'Dl*99 Ride', categoria: 'Transporte', valor: 14.3 },
+  { id: 'pre-007', data: '2026-05-18', desc: 'Uber - NuPay', categoria: 'Transporte', valor: -14.55 },
+  { id: 'pre-008', data: '2026-05-18', desc: 'Uber - NuPay', categoria: 'Transporte', valor: 12.55 },
+  { id: 'pre-009', data: '2026-05-18', desc: 'Uber - NuPay', categoria: 'Transporte', valor: 4.06 },
+  { id: 'pre-010', data: '2026-05-18', desc: 'iFood - NuPay', categoria: 'Ifood', valor: 14.89 },
+  { id: 'pre-011', data: '2026-05-18', desc: 'Uber - NuPay', categoria: 'Transporte', valor: 14.55 },
+  { id: 'pre-012', data: '2026-05-18', desc: 'Shopee*Bgm Cases Comer', categoria: 'Futilidades', valor: 14.98 },
+  { id: 'pre-013', data: '2026-05-17', desc: 'Mp *Docevida', categoria: 'Saúde', valor: 117.0 },
+  { id: 'pre-014', data: '2026-05-17', desc: 'O Candia Bar', categoria: 'Lazer', valor: 17.0 },
+  { id: 'pre-015', data: '2026-05-17', desc: 'Amazon', categoria: 'Futilidades', valor: 55.83 },
+  { id: 'pre-016', data: '2026-05-17', desc: 'Azul Linhas Wqqs4x - Parcela 1/4', categoria: 'Viagens', valor: 333.08 },
+  { id: 'pre-017', data: '2026-05-16', desc: 'Uber - NuPay', categoria: 'Transporte', valor: 13.59 },
+  { id: 'pre-018', data: '2026-05-16', desc: 'Dl*99 Ride', categoria: 'Transporte', valor: 15.1 },
+  { id: 'pre-019', data: '2026-05-16', desc: 'Loja Anebi - Parcela 1/2', categoria: 'Vestuário', valor: 124.9 },
+  { id: 'pre-020', data: '2026-05-15', desc: 'iFood - NuPay', categoria: 'Ifood', valor: 41.92 },
+  { id: 'pre-021', data: '2026-05-15', desc: 'IOF de compra internacional', categoria: 'Assinaturas', valor: 4.05 },
+  { id: 'pre-022', data: '2026-05-15', desc: 'Uber - NuPay', categoria: 'Transporte', valor: -9.03 },
+  { id: 'pre-023', data: '2026-05-15', desc: 'Uber - NuPay', categoria: 'Transporte', valor: 9.03 },
+  { id: 'pre-024', data: '2026-05-15', desc: 'Uber - NuPay', categoria: 'Transporte', valor: 8.72 },
+  { id: 'pre-025', data: '2026-05-15', desc: 'Shein *Lanchonete Oli - Parcela 1/2', categoria: 'Vestuário', valor: 154.73 },
+  { id: 'pre-026', data: '2026-05-15', desc: 'Claude.Ai Subscription', categoria: 'Assinaturas', valor: 115.98 },
+  { id: 'pre-027', data: '2026-05-15', desc: 'Pg *99 Ride', categoria: 'Transporte', valor: 13.1 },
+  { id: 'pre-028', data: '2026-05-14', desc: 'Uber - NuPay', categoria: 'Transporte', valor: 11.78 },
+  { id: 'pre-029', data: '2026-05-14', desc: 'Uber - NuPay', categoria: 'Transporte', valor: 15.78 },
+  { id: 'pre-030', data: '2026-05-14', desc: 'Uber - NuPay', categoria: 'Transporte', valor: -15.78 },
+  { id: 'pre-031', data: '2026-05-14', desc: 'Digitechsolucoes - Parcela 1/3', categoria: 'Vestuário', valor: 300.0 },
+  { id: 'pre-032', data: '2026-05-14', desc: 'Pg *99 Ride', categoria: 'Transporte', valor: 13.9 },
+  { id: 'pre-033', data: '2026-05-13', desc: 'Uber - NuPay', categoria: 'Transporte', valor: -14.8 },
+  { id: 'pre-034', data: '2026-05-13', desc: 'Uber - NuPay', categoria: 'Transporte', valor: 11.24 },
+  { id: 'pre-035', data: '2026-05-13', desc: 'Uber - NuPay', categoria: 'Transporte', valor: 6.59 },
+  { id: 'pre-036', data: '2026-05-13', desc: 'Uber - NuPay', categoria: 'Transporte', valor: 14.8 },
+  { id: 'pre-037', data: '2026-05-13', desc: 'Uber - NuPay', categoria: 'Transporte', valor: 14.13 },
+  { id: 'pre-038', data: '2026-05-13', desc: 'Loja Anebi - Parcela 1/4', categoria: 'Vestuário', valor: 214.6 },
+  { id: 'pre-039', data: '2026-05-12', desc: 'Uber - NuPay', categoria: 'Transporte', valor: 12.91 },
+  { id: 'pre-040', data: '2026-05-12', desc: 'Uber - NuPay', categoria: 'Transporte', valor: 17.65 },
+  { id: 'pre-041', data: '2026-05-12', desc: 'Dl*99 Ride', categoria: 'Transporte', valor: 13.8 },
+  { id: 'pre-042', data: '2026-05-12', desc: '99app *99app', categoria: 'Transporte', valor: 14.5 },
+  { id: 'pre-043', data: '2026-05-12', desc: 'Dl*99 Ride', categoria: 'Transporte', valor: 14.0 },
+  { id: 'pre-044', data: '2026-05-11', desc: 'Araujo Online - Parcela 2/2', categoria: 'Saúde', valor: 35.73 },
+  { id: 'pre-045', data: '2026-05-11', desc: 'Bagaggio - Parcela 2/2', categoria: 'Vestuário', valor: 124.95 },
+  { id: 'pre-046', data: '2026-05-11', desc: 'Htm*Isabela Schnorr - Parcela 3/3', categoria: 'Educação', valor: 104.78 },
+  { id: 'pre-047', data: '2026-05-11', desc: 'Clube Livelo*Clube Liv', categoria: 'Assinaturas', valor: 44.9 },
+  { id: 'pre-048', data: '2026-05-11', desc: 'Br1*Buser - Parcela 4/4', categoria: 'Viagens', valor: 197.05 },
+  { id: 'pre-049', data: '2026-05-11', desc: 'Mp *Beconfiden - Parcela 3/12', categoria: 'Educação', valor: 59.82 },
+  { id: 'pre-050', data: '2026-05-11', desc: 'Araujo Online - Parcela 3/3', categoria: 'Saúde', valor: 92.32 },
+  { id: 'pre-051', data: '2026-05-11', desc: 'Windsor Cidade - Parcela 2/2', categoria: 'Viagens', valor: 189.97 },
+  { id: 'pre-052', data: '2026-05-11', desc: 'Htm*Arq Resumos-Tre - Parcela 7/7', categoria: 'Educação', valor: 18.8 },
+  { id: 'pre-053', data: '2026-05-11', desc: 'Araujo Online - Parcela 2/2', categoria: 'Saúde', valor: 64.68 },
+  { id: 'pre-054', data: '2026-05-11', desc: 'Faal *Ead - Parcela 5/12', categoria: 'Educação', valor: 100.0 },
+  { id: 'pre-055', data: '2026-05-11', desc: 'Araujo Online - Parcela 3/3', categoria: 'Saúde', valor: 80.74 },
+  { id: 'pre-056', data: '2026-05-11', desc: 'Loccitane Outlet Bh - Parcela 2/3', categoria: 'Beleza', valor: 105.96 },
+  { id: 'pre-057', data: '2026-05-11', desc: 'Jim.Com* Chantall Est - Parcela 2/2', categoria: 'Beleza', valor: 162.75 },
 ];
 
 // === STATE ===
@@ -1512,12 +1562,14 @@ function renderTop5() {
     const emoji = cat?.emoji || '📌';
     const d = parseDate(t.data);
     const dataFmt = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}`;
+    const descSemParcela = limparDescParcela(t.desc) || t.categoria;
+    const badge = badgeParcela(t);
     const div = document.createElement('div');
     div.className = 'top5-item';
     div.innerHTML = `
       <div class="top5-rank">${i+1}</div>
       <div class="top5-info">
-        <div class="top5-desc">${emoji} ${t.desc || t.categoria}</div>
+        <div class="top5-desc">${emoji} ${descSemParcela}${badge}</div>
         <div class="top5-meta">${dataFmt} · ${t.categoria}</div>
       </div>
       <div class="top5-value">${fmt(t.valor)}</div>
@@ -1613,13 +1665,15 @@ function renderTx() {
     const emoji = cat?.emoji || '📌';
     const d = parseDate(t.data);
     const dataFmt = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}`;
+    const descSemParcela = limparDescParcela(t.desc) || t.categoria;
+    const badge = badgeParcela(t);
 
     const item = document.createElement('div');
     item.className = 'tx-item';
     item.innerHTML = `
       <div class="tx-emoji">${emoji}</div>
       <div class="tx-info">
-        <div class="tx-desc">${t.desc || t.categoria}</div>
+        <div class="tx-desc">${descSemParcela}${badge}</div>
         <div class="tx-meta">${dataFmt} · ${t.categoria}</div>
       </div>
       <div class="tx-value ${t.valor < 0 ? 'neg' : ''}">${fmt(t.valor)}</div>
@@ -1888,6 +1942,8 @@ function openTxModal() {
   });
   document.getElementById('tx-valor').value = '';
   document.getElementById('tx-desc').value = '';
+  document.getElementById('tx-parcelas').value = '1';
+  updateParcelaInfo();
   const hoje = new Date();
   document.getElementById('tx-data').value = hoje.toISOString().split('T')[0];
 
@@ -1903,7 +1959,27 @@ function openTxModal() {
   });
 
   document.getElementById('modal-tx').classList.add('active');
+  // Bind listeners de cálculo de parcela
+  document.getElementById('tx-valor').oninput = updateParcelaInfo;
+  document.getElementById('tx-parcelas').onchange = updateParcelaInfo;
+
   setTimeout(() => document.getElementById('tx-valor').focus(), 100);
+}
+
+// Atualiza o texto auxiliar do campo de parcelas (R$ X de Y parcelas)
+function updateParcelaInfo() {
+  const v = parseFloat(document.getElementById('tx-valor').value) || 0;
+  const n = parseInt(document.getElementById('tx-parcelas').value) || 1;
+  const info = document.getElementById('tx-parcela-info');
+  if (n === 1) {
+    info.textContent = 'À vista';
+    info.style.color = 'var(--text-muted)';
+  } else if (v > 0) {
+    const parcela = (v / n);
+    info.innerHTML = `<strong style="color: var(--purple);">${n}× ${fmt(parcela)}</strong>`;
+  } else {
+    info.innerHTML = `<strong style="color: var(--purple);">${n}× —</strong>`;
+  }
 }
 
 // Aplicar preset: preenche os campos e foca no valor (pra ajustar se quiser)
@@ -1913,6 +1989,7 @@ function applyPreset(idx) {
   document.getElementById('tx-valor').value = p.valor;
   document.getElementById('tx-cat').value = p.categoria;
   document.getElementById('tx-desc').value = p.label;
+  updateParcelaInfo();
   // Pequena vibração visual
   toast(`⚡ ${p.label} preenchido`);
   // foco no valor pra revisar
@@ -1923,20 +2000,106 @@ function applyPreset(idx) {
   }, 80);
 }
 
+// === HELPERS DE PARCELA ===
+// Detecta info de parcela do objeto t:
+// - Se t.purchaseId existir, usa t.parcelaAtual / t.parcelasTotal
+// - Senão, tenta extrair da descrição ("Parcela X/Y" ou "(X/Y)")
+function getParcelaInfo(t) {
+  if (t.purchaseId && t.parcelasTotal && t.parcelasTotal > 1) {
+    return { atual: t.parcelaAtual, total: t.parcelasTotal, purchaseId: t.purchaseId };
+  }
+  // tenta extrair da descrição
+  const desc = t.desc || '';
+  let m = desc.match(/Parcela\s+(\d+)\s*\/\s*(\d+)/i);
+  if (!m) m = desc.match(/\((\d+)\s*\/\s*(\d+)\)/);
+  if (m) {
+    return { atual: parseInt(m[1]), total: parseInt(m[2]), purchaseId: null };
+  }
+  return null;
+}
+
+// Limpa a descrição removendo "- Parcela X/Y" ou "(X/Y)"
+function limparDescParcela(desc) {
+  if (!desc) return desc;
+  return desc
+    .replace(/\s*-\s*Parcela\s+\d+\s*\/\s*\d+/gi, '')
+    .replace(/\s*\(\d+\s*\/\s*\d+\)/g, '')
+    .trim();
+}
+
+// Gera HTML do badge de parcela (ou string vazia)
+function badgeParcela(t) {
+  const p = getParcelaInfo(t);
+  if (!p) return '';
+  return `<span class="parcela-badge">${p.atual}/${p.total}</span>`;
+}
+
+// Soma um mês mantendo o dia (clamp se o mês seguinte não tiver o dia)
+function adicionarMes(dataISO, n) {
+  const [a, m, d] = dataISO.split('-').map(Number);
+  const novaData = new Date(a, m - 1 + n, d);
+  // Se o mês "estourou" (ex: 31 jan + 1 mês = 03 mar), volta pra último dia do mês alvo
+  if (novaData.getMonth() !== ((m - 1 + n) % 12 + 12) % 12) {
+    novaData.setDate(0); // último dia do mês anterior (o mês alvo)
+  }
+  const ano = novaData.getFullYear();
+  const mes = (novaData.getMonth() + 1).toString().padStart(2, '0');
+  const dia = novaData.getDate().toString().padStart(2, '0');
+  return `${ano}-${mes}-${dia}`;
+}
+
 function saveTx() {
   const v = parseFloat(document.getElementById('tx-valor').value);
   if (isNaN(v) || v === 0) { alert('Informe um valor.'); return; }
-  const t = {
-    id: 'tx-' + Date.now() + '-' + Math.random().toString(36).slice(2,7),
-    valor: v,
-    categoria: document.getElementById('tx-cat').value,
-    desc: document.getElementById('tx-desc').value.trim(),
-    data: document.getElementById('tx-data').value,
-  };
-  state.transacoes.push(t);
+  const n = parseInt(document.getElementById('tx-parcelas').value) || 1;
+  const categoria = document.getElementById('tx-cat').value;
+  const descBase = limparDescParcela(document.getElementById('tx-desc').value.trim());
+  const dataInicial = document.getElementById('tx-data').value;
+
+  if (n === 1) {
+    // À vista: cria 1 transação simples
+    state.transacoes.push({
+      id: 'tx-' + Date.now() + '-' + Math.random().toString(36).slice(2,7),
+      valor: v,
+      categoria,
+      desc: descBase,
+      data: dataInicial,
+    });
+    saveState();
+    closeModal();
+    toast('✓ Lançamento adicionado');
+    renderAll();
+    return;
+  }
+
+  // Parcelado: cria N transações
+  // valor por parcela = arredondado, e a última parcela compensa centavos
+  const parcelaBase = Math.round((v / n) * 100) / 100;
+  const purchaseId = 'pur-' + Date.now() + '-' + Math.random().toString(36).slice(2,5);
+  const novas = [];
+  let acumulado = 0;
+  for (let i = 1; i <= n; i++) {
+    let valorParcela = parcelaBase;
+    if (i === n) {
+      // última parcela ajusta diferença
+      valorParcela = Math.round((v - acumulado) * 100) / 100;
+    }
+    acumulado += valorParcela;
+    novas.push({
+      id: 'tx-' + Date.now() + '-' + Math.random().toString(36).slice(2,5) + '-p' + i,
+      valor: valorParcela,
+      categoria,
+      desc: descBase ? `${descBase} - Parcela ${i}/${n}` : `Parcela ${i}/${n}`,
+      data: adicionarMes(dataInicial, i - 1),
+      purchaseId,
+      parcelaAtual: i,
+      parcelasTotal: n,
+    });
+  }
+  state.transacoes.push(...novas);
   saveState();
   closeModal();
-  toast('✓ Lançamento adicionado');
+  toast(`✓ ${n} parcelas criadas (${fmt(parcelaBase)} cada)`);
   renderAll();
 }
 
@@ -1954,8 +2117,12 @@ function openEditTx(id) {
   });
   document.getElementById('edit-tx-id').value = t.id;
   document.getElementById('edit-tx-valor').value = t.valor;
-  document.getElementById('edit-tx-desc').value = t.desc || '';
+  document.getElementById('edit-tx-desc').value = limparDescParcela(t.desc) || '';
   document.getElementById('edit-tx-data').value = t.data;
+  // Mostra título do modal de edição com info da parcela
+  const tituloEl = document.querySelector('#modal-tx-edit h2');
+  const pinfo = getParcelaInfo(t);
+  if (tituloEl) tituloEl.textContent = pinfo ? `Editar parcela ${pinfo.atual}/${pinfo.total}` : 'Editar lançamento';
   document.getElementById('modal-tx-edit').classList.add('active');
 }
 
@@ -1963,24 +2130,142 @@ function saveEditTx() {
   const id = document.getElementById('edit-tx-id').value;
   const t = state.transacoes.find(x => x.id === id);
   if (!t) return;
-  t.valor = parseFloat(document.getElementById('edit-tx-valor').value);
-  t.categoria = document.getElementById('edit-tx-cat').value;
-  t.desc = document.getElementById('edit-tx-desc').value.trim();
-  t.data = document.getElementById('edit-tx-data').value;
+  const novoValor = parseFloat(document.getElementById('edit-tx-valor').value);
+  const novaCat = document.getElementById('edit-tx-cat').value;
+  const novaDesc = document.getElementById('edit-tx-desc').value.trim();
+  const novaData = document.getElementById('edit-tx-data').value;
+
+  const parcelaInfo = getParcelaInfo(t);
+  // Se é parcela e há outras parcelas da mesma compra, pergunta o escopo
+  if (parcelaInfo && t.purchaseId) {
+    const irmas = state.transacoes.filter(x => x.purchaseId === t.purchaseId);
+    if (irmas.length > 1) {
+      // Guarda os novos valores e abre modal de escolha
+      pendingEditTx = { id, novoValor, novaCat, novaDesc, novaData };
+      pendingAcaoTipo = 'editar';
+      abrirModalParcelaAcao('editar', irmas.length);
+      return;
+    }
+  }
+  // Caso simples (sem outras parcelas), edita direto
+  aplicarEditTx(t, { novoValor, novaCat, novaDesc, novaData });
   saveState();
   closeModal();
   toast('✓ Atualizado');
   renderAll();
 }
 
+// aplica edição em UMA tx
+function aplicarEditTx(t, dados) {
+  t.valor = dados.novoValor;
+  t.categoria = dados.novaCat;
+  // preserva info "Parcela X/Y" na descrição se for parcela
+  const parcelaInfo = getParcelaInfo(t);
+  let descFinal = limparDescParcela(dados.novaDesc);
+  if (parcelaInfo) {
+    descFinal = descFinal ? `${descFinal} - Parcela ${parcelaInfo.atual}/${parcelaInfo.total}` : `Parcela ${parcelaInfo.atual}/${parcelaInfo.total}`;
+  }
+  t.desc = descFinal;
+  t.data = dados.novaData;
+}
+
 function deleteTx() {
-  if (!confirm('Excluir este lançamento?')) return;
   const id = document.getElementById('edit-tx-id').value;
+  const t = state.transacoes.find(x => x.id === id);
+  if (!t) return;
+
+  const parcelaInfo = getParcelaInfo(t);
+  if (parcelaInfo && t.purchaseId) {
+    const irmas = state.transacoes.filter(x => x.purchaseId === t.purchaseId);
+    if (irmas.length > 1) {
+      pendingDeleteTx = { id };
+      pendingAcaoTipo = 'excluir';
+      abrirModalParcelaAcao('excluir', irmas.length);
+      return;
+    }
+  }
+  if (!confirm('Excluir este lançamento?')) return;
   state.transacoes = state.transacoes.filter(x => x.id !== id);
   saveState();
   closeModal();
   toast('✓ Excluído');
   renderAll();
+}
+
+// === Modal de escolha de escopo (só esta / todas) ===
+let pendingEditTx = null;
+let pendingDeleteTx = null;
+let pendingAcaoTipo = null;
+
+function abrirModalParcelaAcao(tipo, qtdParcelas) {
+  document.getElementById('parcela-acao-titulo').textContent = tipo === 'editar' ? 'Editar parcela' : 'Excluir parcela';
+  document.getElementById('parcela-acao-msg').textContent = tipo === 'editar'
+    ? 'Este lançamento faz parte de uma compra parcelada. Você quer aplicar a alteração:'
+    : 'Este lançamento faz parte de uma compra parcelada. Você quer excluir:';
+  document.getElementById('parcela-acao-qtd').textContent = qtdParcelas;
+  // fecha modal de edição se aberto
+  document.getElementById('modal-tx-edit').classList.remove('active');
+  document.getElementById('modal-parcela-acao').classList.add('active');
+}
+
+function parcelaAcaoChoice(escopo) {
+  if (pendingAcaoTipo === 'editar' && pendingEditTx) {
+    const { id, novoValor, novaCat, novaDesc, novaData } = pendingEditTx;
+    const t = state.transacoes.find(x => x.id === id);
+    if (!t) { closeModal(); return; }
+    if (escopo === 'uma') {
+      aplicarEditTx(t, { novoValor, novaCat, novaDesc, novaData });
+      toast('✓ Parcela atualizada');
+    } else {
+      // todas: recalcula valor por parcela com base no novo valor*total
+      const irmas = state.transacoes.filter(x => x.purchaseId === t.purchaseId)
+                                     .sort((a,b) => (a.parcelaAtual||0) - (b.parcelaAtual||0));
+      const novoValorTotal = novoValor * irmas.length;
+      // valor por parcela: arredonda, última compensa
+      const parcelaBase = Math.round((novoValorTotal / irmas.length) * 100) / 100;
+      let acum = 0;
+      irmas.forEach((p, idx) => {
+        let valor = parcelaBase;
+        if (idx === irmas.length - 1) {
+          valor = Math.round((novoValorTotal - acum) * 100) / 100;
+        }
+        acum += valor;
+        p.valor = valor;
+        p.categoria = novaCat;
+        const descLimpa = limparDescParcela(novaDesc);
+        p.desc = descLimpa ? `${descLimpa} - Parcela ${p.parcelaAtual}/${p.parcelasTotal}` : `Parcela ${p.parcelaAtual}/${p.parcelasTotal}`;
+        // não mexe na data — cada parcela mantém seu mês
+      });
+      toast(`✓ ${irmas.length} parcelas atualizadas`);
+    }
+    saveState();
+    pendingEditTx = null;
+    pendingAcaoTipo = null;
+    closeModal();
+    renderAll();
+    return;
+  }
+  if (pendingAcaoTipo === 'excluir' && pendingDeleteTx) {
+    const { id } = pendingDeleteTx;
+    const t = state.transacoes.find(x => x.id === id);
+    if (!t) { closeModal(); return; }
+    if (escopo === 'uma') {
+      state.transacoes = state.transacoes.filter(x => x.id !== id);
+      toast('✓ Parcela excluída');
+    } else {
+      const pid = t.purchaseId;
+      const qtd = state.transacoes.filter(x => x.purchaseId === pid).length;
+      state.transacoes = state.transacoes.filter(x => x.purchaseId !== pid);
+      toast(`✓ ${qtd} parcelas excluídas`);
+    }
+    saveState();
+    pendingDeleteTx = null;
+    pendingAcaoTipo = null;
+    closeModal();
+    renderAll();
+    return;
+  }
+  closeModal();
 }
 
 // === CATEGORY MODAL ===
